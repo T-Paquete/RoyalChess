@@ -192,3 +192,36 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Virtual environment
+venv/
+.env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Mac
+.DS_Store
+
+# Logs
+*.log
+
+# Testing cache
+.coverage
+.tox/
+.pytest_cache/
+
+# Project-specific folders
+oldfiles/
