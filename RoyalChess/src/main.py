@@ -2,6 +2,7 @@
 import pygame
 from game.constants import WIDTH, HEIGHT
 from game.board import Board
+from ui.display import Display
 
 def main():
     pygame.init()
@@ -9,6 +10,7 @@ def main():
     pygame.display.set_caption("Royal Chess")
     
     board = Board()
+    display = Display()
     
     running = True
     while running:
@@ -17,6 +19,7 @@ def main():
                 running = False
                 
         board.draw(screen)
+        display.draw_pieces(screen, board)
         pygame.display.flip()
 
     pygame.quit()
