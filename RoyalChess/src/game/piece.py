@@ -1,13 +1,18 @@
 import os
 import pygame
 class Piece:
-    def __init__(self, name, color, row, col, move=None, effects=None):
+    def __init__(self, name, color, row, col, rank=None, direction=None, 
+                 moves=None, max_steps=None, effects=None, ability=None):
         self.name = name
         self.color = color
         self.row = row
         self.col = col
+        self.rank = rank if rank is not None else 0
+        self.direction = direction
         self.effects = effects if effects is not None else []
-        self.move = move  
+        self.moves = moves if moves else []
+        self.max_steps = max_steps  # None means unlimited
+        self.ability = ability if ability is not None else []
 
     def move(self, new_row, new_col):
         self.row = new_row
@@ -18,73 +23,73 @@ class Piece:
 # ================== Starting Pieces ==================
 
 class Pawn(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("pawn", color, row, col, effects)
+    def __init__(self, color, row, col, rank=None, direction=None, moves=None):
+        super().__init__("pawn", color, row, col, rank=rank, direction=direction, moves=moves)
 
-class Royal_guard(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("royal_guard", color, row, col, effects)
+class RoyalGuard(Piece):
+    def __init__(self, color, row, col, rank=None, moves=None):
+        super().__init__("royal_guard", color, row, col, rank=rank, moves=moves)
 
 class Knight(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("knight", color, row, col, effects)
+    def __init__(self, color, row, col, rank=None, moves=None):
+        super().__init__("knight", color, row, col, rank=rank, moves=moves)
 
 class Counselor(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("counselor", color, row, col, effects)
+    def __init__(self, color, row, col, rank=None, moves=None):
+        super().__init__("counselor", color, row, col, rank=rank, moves=moves)
 
 class Rook(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("rook", color, row, col, effects)
+    def __init__(self, color, row, col, rank=None, moves=None):
+        super().__init__("rook", color, row, col, rank=rank, moves=moves)
 
 class Wizard(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("wizard", color, row, col, effects)
+    def __init__(self, color, row, col, rank=None, moves=None, effects=None):
+        super().__init__("wizard", color, row, col, rank=rank, moves=moves, effects=effects)
 
 class Prince(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("prince", color, row, col, effects)
+    def __init__(self, color, row, col, rank=None, moves=None, effects=None):
+        super().__init__("prince", color, row, col, rank=rank, moves=moves, effects=effects)
 
 class Dragon(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("dragon", color, row, col, effects)
+    def __init__(self, color, row, col, rank=None, moves=None):
+        super().__init__("dragon", color, row, col, rank=rank, moves=moves)
 
 class Lion(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("lion", color, row, col, effects)
+    def __init__(self, color, row, col, rank=None, moves=None):
+        super().__init__("lion", color, row, col, rank=rank, moves=moves)
 
 class King(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("king", color, row, col, effects)
+    def __init__(self, color, row, col, rank=None, moves=None, effects=None):
+        super().__init__("king", color, row, col, rank=rank, moves=moves, effects=effects)
 
 class Queen(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("queen", color, row, col, effects)
+    def __init__(self, color, row, col, rank=None, moves=None):
+        super().__init__("queen", color, row, col, rank=rank, moves=moves)
 
 # ================== Out of board Pieces ==================
 
 class Symbol(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("symbol", color, row, col, effects)
+    def __init__(self, color, row, col, rank=None, moves=None, effects=None):
+        super().__init__("symbol", color, row, col, rank=rank, moves=moves, effects=effects)
 
-class White_hat(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("white_hat", color, row, col, effects)
+class WhiteHat(Piece):
+    def __init__(self, color, row, col, rank=None, moves=None, effects=None):
+        super().__init__("white_hat", color, row, col, rank=rank, moves=moves, effects=effects)
 
-class Black_hat(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("black_hat", color, row, col, effects)
+class BlackHat(Piece):
+    def __init__(self, color, row, col, rank=None, moves=None, effects=None):
+        super().__init__("black_hat", color, row, col, rank=rank, moves=moves, effects=effects)
 
 # ================== Combined Pieces ==================
 
-class Mounted_wizard(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("mounted_wizard", color, row, col, effects)
+class MountedWizard(Piece):
+    def __init__(self, color, row, col, rank=None, moves=None):
+        super().__init__("mounted_wizard", color, row, col, rank=rank, moves=moves)
 
-class Mounted_prince(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("mounted_prince", color, row, col, effects)
+class MountedPrince(Piece):
+    def __init__(self, color, row, col, rank=None, moves=None):
+        super().__init__("mounted_prince", color, row, col, rank=rank, moves=moves)
 
-class Grey_hat(Piece):
-    def __init__(self, color, row, col, effects=None):
-        super().__init__("grey_hat", color, row, col, effects)
+class GreyHat(Piece):
+    def __init__(self, color, row, col, rank=None, moves=None, effects=None):
+        super().__init__("grey_hat", color, row, col, rank=rank, moves=moves, effects=effects)
