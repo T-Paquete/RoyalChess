@@ -20,7 +20,7 @@ def main():
                 
         board.draw(screen)
         display.draw_pieces(screen, board)
-        pygame.display.flip()
+        pygame.display.flip() # Update the display
 
     pygame.quit()
     

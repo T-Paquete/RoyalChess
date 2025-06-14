@@ -7,6 +7,14 @@ class Board:
         self.grid = [[None for _ in range(COLS)] for _ in range(ROWS)]
         self.initial_piece_setup()
 
+    @property
+    def rows(self):
+        return len(self.grid) 
+
+    @property
+    def cols(self):
+        return len(self.grid[0]) if self.grid else 0
+
     def draw(self, screen):
         for row in range(ROWS):
             for col in range(COLS):
@@ -99,9 +107,8 @@ class Board:
         self.grid[9][7] = Piece("black_hat", "white", 9, 7)
         # Place Black Hat for black (row 0, col 7)
         self.grid[0][7] = Piece("black_hat", "black", 0, 7)
-        
-        
-                
-        
-        
-        
+
+
+
+
+

@@ -1,13 +1,13 @@
 import os
 import pygame
 class Piece:
-    def __init__(self, name, color, row, col, effects=None):
+    def __init__(self, name, color, row, col, move=None, effects=None):
         self.name = name
         self.color = color
         self.row = row
         self.col = col
         self.effects = effects if effects is not None else []
-        self.moved = False
+        self.move = move  
 
     def move(self, new_row, new_col):
         self.row = new_row
