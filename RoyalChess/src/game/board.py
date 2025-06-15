@@ -1,4 +1,4 @@
-import pygame
+
 from game.constants import ROWS, COLS, WHITE, LIGHT_COLOR, DARK_COLOR, SQSIZE
 from game.piece import Piece
 class Board:
@@ -14,15 +14,6 @@ class Board:
     def cols(self):
         return len(self.grid[0]) if self.grid else 0
 
-    def draw(self, screen):
-        for row in range(ROWS):
-            for col in range(COLS):
-                if row == 0 or row == 9:
-                    color = WHITE
-                else:
-                    color = DARK_COLOR if (row + col) % 2 == 0 else LIGHT_COLOR
-                rect = col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE
-                pygame.draw.rect(screen, color, rect)
 
     def initial_piece_setup(self):
         # Place Pawns for white (rows 7, cols 0-3 and 8-11)
