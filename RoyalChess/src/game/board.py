@@ -1,6 +1,9 @@
+from game.constants import ROWS, COLS
+from game.piece import (
+    Piece, Pawn, RoyalGuard, Knight, Counselor, Rook, Wizard, Prince, Dragon, Lion, King, Queen,
+    Symbol, WhiteHat, BlackHat, MountedWizard, MountedPrince, GreyHat
+)
 
-from game.constants import ROWS, COLS, WHITE, LIGHT_COLOR, DARK_COLOR, SQSIZE
-from game.piece import Piece
 class Board:
     def __init__(self):
         self.grid = [[None for _ in range(COLS)] for _ in range(ROWS)]
@@ -8,95 +11,78 @@ class Board:
 
     @property
     def rows(self):
-        return len(self.grid) 
+        return len(self.grid)
 
     @property
     def cols(self):
         return len(self.grid[0]) if self.grid else 0
 
-
     def initial_piece_setup(self):
-        # Place Pawns for white (rows 7, cols 0-3 and 8-11)
+        # Pawns
         for col in list(range(0, 4)) + list(range(8, 12)):
-            self.grid[7][col] = Piece("pawn", "white", 7, col)
-        # Place Pawns for black (rows 2, cols 0-3 and 8-11)
-        for col in list(range(0, 4)) + list(range(8, 12)):
-            self.grid[2][col] = Piece("pawn", "black", 2, col)
+            self.grid[7][col] = Pawn("white", 7, col)
+            self.grid[2][col] = Pawn("black", 2, col)
 
-        # Place Royal Guards for white (row 7, cols 4-7)
+        # Royal Guards
         for col in range(4, 8):
-            self.grid[7][col] = Piece("royal_guard", "white", 7, col)
-        # Place Royal Guards for black (row 2, cols 4-7)
-        for col in range(4, 8):
-            self.grid[2][col] = Piece("royal_guard", "black", 2, col)
-        
-        # Place Rooks for white (row 8, cols 0 and 11)
-        self.grid[8][0] = Piece("rook", "white", 8, 0)
-        self.grid[8][11] = Piece("rook", "white", 8, 11)
-        # Place Rooks for black (row 1, cols 0 and 11)
-        self.grid[1][0] = Piece("rook", "black", 1, 0)
-        self.grid[1][11] = Piece("rook", "black", 1, 11)
-        
-        # Place Knights for white (row 7, cols 1 and 10)
-        self.grid[8][1] = Piece("knight", "white", 7, 1)
-        self.grid[8][10] = Piece("knight", "white", 7, 10)
-        # Place Knights for black (row 2, cols 1 and 10)
-        self.grid[1][1] = Piece("knight", "black", 2, 1)
-        self.grid[1][10] = Piece("knight", "black", 2, 10)
-        
-        #Place Dragons for white (row 8, col 2)
-        self.grid[8][2] = Piece("dragon", "white", 8, 2)
-        #Place Dragons for black (row 1, col 2)
-        self.grid[1][2] = Piece("dragon", "black", 1, 2)
-        
-        #Place Wizard for white (row 8, col 3)
-        self.grid[8][3] = Piece("wizard", "white", 8, 3)
-        #Place Wizard for black (row 1, col 3)
-        self.grid[1][3] = Piece("wizard", "black", 1, 3)
-        
-        # Place Lion for white (row 8, col 9)
-        self.grid[8][9] = Piece("lion", "white", 8, 9)
-        # Place Lion for black (row 1, col 9)
-        self.grid[1][9] = Piece("lion", "black", 1, 9)
-        
-        # Place Prince for white (row 8, col 8)
-        self.grid[8][8] = Piece("prince", "white", 8, 8)
-        # Place Prince for black (row 1, col 8)
-        self.grid[1][8] = Piece("prince", "black", 1, 8)
-        
-        # Place Councelors for white (row 8, cols 4 and 7)
-        self.grid[8][4] = Piece("counselor", "white", 8, 4)
-        self.grid[8][7] = Piece("counselor", "white", 8, 7)
-        # Place Counselors for black (row 1, cols 4 and 7)
-        self.grid[1][4] = Piece("counselor", "black", 1, 4)
-        self.grid[1][7] = Piece("counselor", "black", 1, 7)
-        
-        # Place King for white (row 8, col 6)
-        self.grid[8][6] = Piece("king", "white", 8, 6)
-        # Place King for black (row 1, col 6)
-        self.grid[1][6] = Piece("king", "black", 1, 6)
-        
-        # Place Queen for white (row 8, col 5)
-        self.grid[8][5] = Piece("queen", "white", 8, 5)
-        # Place Queen for black (row 1, col 5)
-        self.grid[1][5] = Piece("queen", "black", 1, 5)
-        
-        # Place Symbols for white (row 9, cols 5-6)
-        self.grid[9][5] = Piece("symbol", "white", 9, 5)
-        self.grid[9][6] = Piece("symbol", "white", 9, 6)
-        # Place Symbols for black (row 0, cols 5-6)
-        self.grid[0][5] = Piece("symbol", "black", 0, 5)
-        self.grid[0][6] = Piece("symbol", "black", 0, 6)
+            self.grid[7][col] = RoyalGuard("white", 7, col)
+            self.grid[2][col] = RoyalGuard("black", 2, col)
 
-        # Place White Hat for white (row 9, col 4)
-        self.grid[9][4] = Piece("white_hat", "white", 9, 4)
-        # Place White Hat for black (row 0, col 4)
-        self.grid[0][4] = Piece("white_hat", "black", 0, 4)
-        
-        # Place Black Hat for white (row 9, col 7)
-        self.grid[9][7] = Piece("black_hat", "white", 9, 7)
-        # Place Black Hat for black (row 0, col 7)
-        self.grid[0][7] = Piece("black_hat", "black", 0, 7)
+        # Rooks
+        self.grid[8][0] = Rook("white", 8, 0)
+        self.grid[8][11] = Rook("white", 8, 11)
+        self.grid[1][0] = Rook("black", 1, 0)
+        self.grid[1][11] = Rook("black", 1, 11)
+
+        # Knights
+        self.grid[8][1] = Knight("white", 8, 1)
+        self.grid[8][10] = Knight("white", 8, 10)
+        self.grid[1][1] = Knight("black", 1, 1)
+        self.grid[1][10] = Knight("black", 1, 10)
+
+        # Dragons
+        self.grid[8][2] = Dragon("white", 8, 2)
+        self.grid[1][2] = Dragon("black", 1, 2)
+
+        # Wizards
+        self.grid[8][3] = Wizard("white", 8, 3)
+        self.grid[1][3] = Wizard("black", 1, 3)
+
+        # Lions
+        self.grid[8][9] = Lion("white", 8, 9)
+        self.grid[1][9] = Lion("black", 1, 9)
+
+        # Princes
+        self.grid[8][8] = Prince("white", 8, 8)
+        self.grid[1][8] = Prince("black", 1, 8)
+
+        # Counselors
+        self.grid[8][4] = Counselor("white", 8, 4)
+        self.grid[8][7] = Counselor("white", 8, 7)
+        self.grid[1][4] = Counselor("black", 1, 4)
+        self.grid[1][7] = Counselor("black", 1, 7)
+
+        # Kings
+        self.grid[8][6] = King("white", 8, 6)
+        self.grid[1][6] = King("black", 1, 6)
+
+        # Queens
+        self.grid[8][5] = Queen("white", 8, 5)
+        self.grid[1][5] = Queen("black", 1, 5)
+
+        # Symbols
+        self.grid[9][5] = Symbol("white", 9, 5)
+        self.grid[9][6] = Symbol("white", 9, 6)
+        self.grid[0][5] = Symbol("black", 0, 5)
+        self.grid[0][6] = Symbol("black", 0, 6)
+
+        # White Hats
+        self.grid[9][4] = WhiteHat("white", 9, 4)
+        self.grid[0][4] = WhiteHat("black", 0, 4)
+
+        # Black Hats
+        self.grid[9][7] = BlackHat("white", 9, 7)
+        self.grid[0][7] = BlackHat("black", 0, 7)
 
 
 

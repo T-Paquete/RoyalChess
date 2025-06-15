@@ -1,7 +1,7 @@
 import pygame
 import os
-from game.constants import SQSIZE
-from game.constants import LIGHT_COLOR, DARK_COLOR, WHITE, HEIGHT, WIDTH, SQSIZE, COLS, ROWS
+from game.constants import LIGHT_COLOR, DARK_COLOR, WHITE, SQSIZE, COLS, ROWS, LIGHT_RED, DARK_RED
+from game.piece import Piece
 
 class Display:
     def __init__(self):
@@ -59,7 +59,24 @@ class Display:
     def draw_board(self, screen):
         for row in range(ROWS):
             for col in range(COLS):
-                color = LIGHT_COLOR if (row + col) % 2 == 0 else DARK_COLOR
+                if row == 0 or row == ROWS - 1:
+                    color = WHITE
+                else:
+                    color = LIGHT_COLOR if (row + col) % 2 == 0 else DARK_COLOR
                 rect = (col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(screen, color, rect)
+
+    def draw_possible_moves(self, screen, piece, board):
+        if piece is None:
+            return
+        possible_moves = piece.get_possible_moves(board)
+        print(f"Possible moves for {piece.name} at ({piece.row}, {piece.col}): {possible_moves}")  # <-- Debug print
+        for row, col in possible_moves:
+            is_light_square = (row + col) % 2 == 0
+            color = (255, 100, 100, 120) if is_light_square else (180, 0, 0, 120)
+            surface = pygame.Surface((SQSIZE, SQSIZE), pygame.SRCALPHA)
+            pygame.draw.rect(surface, color, (0, 0, SQSIZE, SQSIZE))
+            screen.blit(surface, (col * SQSIZE, row * SQSIZE))
+
+
 

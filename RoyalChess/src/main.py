@@ -4,9 +4,6 @@ from ui.display import Display
 from ui.dragger import Dragger
 from game.constants import WIDTH, HEIGHT, SQSIZE
 
-
-
-
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -15,6 +12,7 @@ def main():
     board = Board()
     display = Display()
     dragger = Dragger()
+    selected_piece = None  # Track the selected piece even when not dragging
     
     running = True
     while running:
@@ -27,8 +25,11 @@ def main():
                 row, col = mouse_y // SQSIZE, mouse_x // SQSIZE
                 piece = board.grid[row][col]
                 if piece:
+                    selected_piece = piece
                     dragger.start_drag(piece, row, col)
                     dragger.update_mouse((mouse_x, mouse_y))
+                else:
+                    selected_piece = None
 
             elif event.type == pygame.MOUSEMOTION:
                 if dragger.is_dragging():
@@ -48,9 +49,17 @@ def main():
                         board.grid[target_row][target_col] = piece
                         piece.row, piece.col = target_row, target_col
                     dragger.stop_drag()
+                    selected_piece = None  # Clear selection after drop
 
         # Rendering (all handled by display.py)
-        display.render(screen, board, dragger)
+        display.draw_board(screen)
+        # Highlight possible moves if a piece is selected or being dragged
+        highlight_piece = dragger.selected_piece if dragger.is_dragging() else selected_piece
+        display.draw_possible_moves(screen, highlight_piece, board)
+        display.draw_pieces(screen, board, exclude_piece=dragger.selected_piece if dragger.is_dragging() else None)
+        if dragger.is_dragging():
+            display.draw_dragged_piece(screen, dragger)
+        pygame.display.flip()
 
     pygame.quit()
     

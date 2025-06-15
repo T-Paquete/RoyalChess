@@ -1,7 +1,4 @@
-import os
-import pygame
-
-
+from game.move import *
 
 class Piece:
     def __init__(self, name, color, row, col, rank=None, direction=None, 
@@ -20,7 +17,13 @@ class Piece:
     def move(self, new_row, new_col):
         self.row = new_row
         self.col = new_col
-        self.moved = True
+        self.moved = True 
+
+    def get_possible_moves(self, board):
+        all_moves = []
+        for move_obj in self.moves:
+            all_moves.extend(move_obj.get_possible_moves(self, board))
+        return all_moves
 
 
 # ================== Starting Pieces ==================
@@ -35,6 +38,8 @@ class RoyalGuard(Piece):
 
 class Knight(Piece):
     def __init__(self, color, row, col, rank=None, moves=None):
+        if moves is None:
+            moves = [KnightMove()]
         super().__init__("knight", color, row, col, rank=rank, moves=moves)
 
 class Counselor(Piece):
@@ -66,7 +71,7 @@ class King(Piece):
         super().__init__("king", color, row, col, rank=rank, moves=moves, effects=effects)
 
 class Queen(Piece):
-    def __init__(self, color, row, col, rank=None, moves=None):
+    def __init__(self, color, row, col, rank=None, moves=[StraightMove(), DiagonalMove()]):
         super().__init__("queen", color, row, col, rank=rank, moves=moves)
 
 # ================== Out of board Pieces ==================

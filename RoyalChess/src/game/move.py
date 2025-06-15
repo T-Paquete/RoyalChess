@@ -63,10 +63,12 @@ class KnightMove(Move):
         for dir_row, dir_col in deltas:
             new_row = piece.row + dir_row
             new_col = piece.col + dir_col
+            print(f"Checking: ({new_row}, {new_col})")
             if 0 <= new_row < board.rows and 0 <= new_col < board.cols:
                 target = board.grid[new_row][new_col]
                 if target is None or target.color != piece.color:
                     moves.append((new_row, new_col))
+        print(f"Knight possible moves: {moves}") # <-- Debug print
         return moves
 
 
