@@ -1,7 +1,6 @@
 import pygame
 from game.constants import ROWS, COLS, WHITE, LIGHT_COLOR, DARK_COLOR, SQSIZE
 from game.piece import Piece
-
 class Board:
     def __init__(self):
         self.grid = [[None for _ in range(COLS)] for _ in range(ROWS)]

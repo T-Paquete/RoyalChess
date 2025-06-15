@@ -4,6 +4,9 @@ from game.constants import WIDTH, HEIGHT
 from game.board import Board
 from ui.display import Display
 
+
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
