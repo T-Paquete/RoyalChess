@@ -70,7 +70,6 @@ class Display:
         if piece is None:
             return
         possible_moves = piece.get_possible_moves(board)
-        print(f"Possible moves for {piece.name} at ({piece.row}, {piece.col}): {possible_moves}")  # <-- Debug print
         for row, col in possible_moves:
             is_light_square = (row + col) % 2 == 0
             color = (255, 100, 100, 120) if is_light_square else (180, 0, 0, 120)

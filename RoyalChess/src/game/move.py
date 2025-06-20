@@ -7,43 +7,43 @@ class Move:
         raise NotImplementedError("This method should be implemented by subclasses.")
 
 class StraightMove(Move):
-    def __init__(self, max_steps=None):
-        self.max_steps = max_steps  # None means unlimited
-
     def get_possible_moves(self, piece, board):
-        directions = [(-1,0), (1,0), (0,-1), (0,1)] # Moves: up, down, left, right
         moves = []
-        for dir_row, dir_col in directions:
-            for step in range(1, self.max_steps+1 if self.max_steps else max(board.rows, board.cols)):
-                new_row = piece.row + dir_row * step
-                new_col = piece.col + dir_col * step
-                if 0 <= new_row < board.rows and 0 <= new_col < board.cols:
-                    if board.grid[new_row][new_col] is None:
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # up, down, left, right
+        max_steps = piece.max_steps if piece.max_steps is not None else max(len(board.grid), len(board.grid[0]))
+
+        for direction_row, direction_col in directions:
+            for step in range(1, max_steps + 1):
+                new_row = piece.row + direction_row * step
+                new_col = piece.col + direction_col * step
+                if 0 <= new_row < len(board.grid) and 0 <= new_col < len(board.grid[0]):
+                    target = board.grid[new_row][new_col]
+                    if target is None:
                         moves.append((new_row, new_col))
+                    elif target.color != piece.color:
+                        moves.append((new_row, new_col))
+                        break  # Can't move past capture
                     else:
-                        if board.grid[new_row][new_col].color != piece.color:
-                            moves.append((new_row, new_col))
-                        break
+                        break  # Blocked by own piece
                 else:
-                    break
+                    break  # Out of bounds
         return moves
 
 class DiagonalMove(Move):
-    def __init__(self, max_steps=None):
-        self.max_steps = max_steps  # None means unlimited
-
     def get_possible_moves(self, piece, board):
-        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)] # Moves: up-left, up-right, down-left, down-right
+        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
         moves = []
+        max_steps = piece.max_steps if piece.max_steps is not None else max(board.rows, board.cols)
         for dir_row, dir_col in directions:
-            for step in range(1, self.max_steps+1 if self.max_steps else max(board.rows, board.cols)):
+            for step in range(1, max_steps + 1):
                 new_row = piece.row + dir_row * step
                 new_col = piece.col + dir_col * step
                 if 0 <= new_row < board.rows and 0 <= new_col < board.cols:
-                    if board.grid[new_row][new_col] is None:
+                    target = board.grid[new_row][new_col]
+                    if target is None:
                         moves.append((new_row, new_col))
                     else:
-                        if board.grid[new_row][new_col].color != piece.color:
+                        if target.color != piece.color:
                             moves.append((new_row, new_col))
                         break
                 else:
@@ -63,34 +63,39 @@ class KnightMove(Move):
         for dir_row, dir_col in deltas:
             new_row = piece.row + dir_row
             new_col = piece.col + dir_col
-            print(f"Checking: ({new_row}, {new_col})")
             if 0 <= new_row < board.rows and 0 <= new_col < board.cols:
                 target = board.grid[new_row][new_col]
                 if target is None or target.color != piece.color:
                     moves.append((new_row, new_col))
-        print(f"Knight possible moves: {moves}") # <-- Debug print
         return moves
 
 
 class PawnMove(Move):
     def get_possible_moves(self, piece, board):
-        # Use piece.direction if set, otherwise default: -1 for white, +1 for black
-        direction = piece.direction if piece.direction is not None else (-1 if piece.color == "white" else 1)
         moves = []
-        row, col = piece.row, piece.col
-        next_row = row + direction
+        direction = -1 if piece.color == "white" else 1  # White moves up, black moves down
+        # Set correct starting row for each color (white at bottom, black at top)
+        start_row = board.rows - 3 if piece.color == "white" else 2
 
-        # Forward move (one square)
-        if 0 <= next_row < board.rows and board.grid[next_row][col] is None:
-            moves.append((next_row, col))
+        # One square forward
+        new_row = piece.row + direction
+        if 0 <= new_row < board.rows and board.grid[new_row][piece.col] is None:
+            moves.append((new_row, piece.col))
 
-        # Diagonal captures
-        for dir_col in [-1, 1]:
-            diag_col = col + dir_col
-            if 0 <= next_row < board.rows and 0 <= diag_col < board.cols:
-                target = board.grid[next_row][diag_col]
+            # Two squares forward from starting row
+            if piece.row == start_row:
+                new_row2 = piece.row + 2 * direction
+                if 0 <= new_row2 < board.rows and board.grid[new_row2][piece.col] is None:
+                    moves.append((new_row2, piece.col))
+                    
+         # Diagonal captures
+        for delta_col in [-1, 1]:
+            capture_col = piece.col + delta_col
+            if 0 <= new_row < len(board.grid) and 0 <= capture_col < len(board.grid[0]):
+                target = board.grid[new_row][capture_col]
                 if target is not None and target.color != piece.color:
-                    moves.append((next_row, diag_col))
+                    moves.append((new_row, capture_col))
+            
         return moves
     
 class JumpOverMove(Move):

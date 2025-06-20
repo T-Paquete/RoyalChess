@@ -1,17 +1,16 @@
 from game.move import *
 
 class Piece:
-    def __init__(self, name, color, row, col, rank=None, direction=None, 
-                 moves=None, max_steps=None, effects=None, ability=None):
+    def __init__(self, name, color, row, col, rank=None, moves=None, effects=None, ability=None, max_steps=None):
         self.name = name
         self.color = color
         self.row = row
         self.col = col
         self.rank = rank if rank is not None else 0
-        self.direction = direction
+        self.direction = None
         self.effects = effects if effects is not None else []
         self.moves = moves if moves else []
-        self.max_steps = max_steps  # None means unlimited
+        self.max_steps = max_steps
         self.ability = ability if ability is not None else []
 
     def move(self, new_row, new_col):
@@ -29,25 +28,25 @@ class Piece:
 # ================== Starting Pieces ==================
 
 class Pawn(Piece):
-    def __init__(self, color, row, col, rank=None, direction=None, moves=None):
-        super().__init__("pawn", color, row, col, rank=rank, direction=direction, moves=moves)
+    def __init__(self, color, row, col, rank=None, moves=[PawnMove()]):
+        super().__init__("pawn", color, row, col, rank=rank, moves=moves)
 
 class RoyalGuard(Piece):
-    def __init__(self, color, row, col, rank=None, moves=None):
+    def __init__(self, color, row, col, rank=None, moves=[PawnMove()]):
         super().__init__("royal_guard", color, row, col, rank=rank, moves=moves)
 
 class Knight(Piece):
-    def __init__(self, color, row, col, rank=None, moves=None):
+    def __init__(self, color, row, col, rank=None, moves=[KnightMove()]):
         if moves is None:
             moves = [KnightMove()]
         super().__init__("knight", color, row, col, rank=rank, moves=moves)
 
 class Counselor(Piece):
-    def __init__(self, color, row, col, rank=None, moves=None, ability=None):
+    def __init__(self, color, row, col, rank=None, moves=[DiagonalMove()], ability=None):
         super().__init__("counselor", color, row, col, rank=rank, moves=moves, ability=ability)
 
 class Rook(Piece):
-    def __init__(self, color, row, col, rank=None, moves=None):
+    def __init__(self, color, row, col, rank=None, moves=[StraightMove()]):
         super().__init__("rook", color, row, col, rank=rank, moves=moves)
 
 class Wizard(Piece):
@@ -67,8 +66,8 @@ class Lion(Piece):
         super().__init__("lion", color, row, col, rank=rank, moves=moves)
 
 class King(Piece):
-    def __init__(self, color, row, col, rank=None, moves=None, effects=None):
-        super().__init__("king", color, row, col, rank=rank, moves=moves, effects=effects)
+    def __init__(self, color, row, col, rank=None, moves=[DiagonalMove(), StraightMove()], effects=None):
+        super().__init__("king", color, row, col, rank=rank, moves=moves, effects=effects, max_steps=1)
 
 class Queen(Piece):
     def __init__(self, color, row, col, rank=None, moves=[StraightMove(), DiagonalMove()]):
