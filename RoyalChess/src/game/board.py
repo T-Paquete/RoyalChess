@@ -1,12 +1,14 @@
 from game.constants import ROWS, COLS
 from game.piece import (
-    Piece, Pawn, RoyalGuard, Knight, Counselor, Rook, Wizard, Prince, Dragon, Lion, King, Queen,
-    Symbol, WhiteHat, BlackHat, MountedWizard, MountedPrince, GreyHat
+    Pawn, RoyalGuard, Knight, Counselor, Rook, Wizard, Prince, Dragon, Lion, King, Queen,
+    Symbol, WhiteHat, BlackHat
 )
+from history.move_history import MoveHistory
 
 class Board:
     def __init__(self):
         self.grid = [[None for _ in range(COLS)] for _ in range(ROWS)]
+        self.move_history = MoveHistory()
         self.initial_piece_setup()
 
     @property
@@ -16,6 +18,10 @@ class Board:
     @property
     def cols(self):
         return len(self.grid[0]) if self.grid else 0
+
+
+# -------------------------------------------
+
 
     def initial_piece_setup(self):
         # Pawns
@@ -83,6 +89,34 @@ class Board:
         # Black Hats
         self.grid[9][7] = BlackHat("white", 9, 7)
         self.grid[0][7] = BlackHat("black", 0, 7)
+        
+        
+# -------------------------------------------
+
+
+    def move_piece(self, start_row, start_col, end_row, end_col):
+        """
+        Moves a piece from (start_row, start_col) to (end_row, end_col) and records it in move_history.
+        """
+        piece = self.grid[start_row][start_col]
+        captured = self.grid[end_row][end_col]
+        self.grid[end_row][end_col] = piece
+        self.grid[start_row][start_col] = None # Clear the starting position
+        piece.row, piece.col = end_row, end_col
+        if not piece:
+            return
+        
+        # Create a dictionary to record the move
+        move_record = {
+            'piece': piece,
+            'start_pos': (start_row, start_col),
+            'end_pos': (end_row, end_col),
+            'captured': captured
+        }
+        
+        # Log the move in MoveHistory
+        self.move_history.add_move(move_record)
+
 
 
 

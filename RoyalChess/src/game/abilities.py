@@ -1,7 +1,3 @@
-from piece import *
-from board import Board
-
-
 class Ability:
     def __init__(self, name):
         self.name = name
@@ -11,12 +7,15 @@ class Ability:
         Override this method in subclasses to define the ability's behavior.
         """
         raise NotImplementedError("This ability has no implementation.")
+                
 
 class MountDragonAbility(Ability):
     def __init__(self):
         super().__init__("mount_dragon")
 
-    def use(self, wizard, board, dragon):
+    def use(self, wizard, board, dragon, *args, **kwargs):
+        from game.piece import MountedWizard
+        board.grid[dragon.row][dragon.col] = MountedWizard(wizard.color, dragon.row, dragon.col)
         # i) Only the wizard can mount the dragon
         if wizard.name != "wizard" or dragon.name != "dragon":
             return False  # Invalid usage

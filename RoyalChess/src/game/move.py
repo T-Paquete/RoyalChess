@@ -6,49 +6,6 @@ class Move:
         """
         raise NotImplementedError("This method should be implemented by subclasses.")
 
-class StraightMove(Move):
-    def get_possible_moves(self, piece, board):
-        moves = []
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # up, down, left, right
-        max_steps = piece.max_steps if piece.max_steps is not None else max(len(board.grid), len(board.grid[0]))
-
-        for direction_row, direction_col in directions:
-            for step in range(1, max_steps + 1):
-                new_row = piece.row + direction_row * step
-                new_col = piece.col + direction_col * step
-                if 0 <= new_row < len(board.grid) and 0 <= new_col < len(board.grid[0]):
-                    target = board.grid[new_row][new_col]
-                    if target is None:
-                        moves.append((new_row, new_col))
-                    elif target.color != piece.color:
-                        moves.append((new_row, new_col))
-                        break  # Can't move past capture
-                    else:
-                        break  # Blocked by own piece
-                else:
-                    break  # Out of bounds
-        return moves
-
-class DiagonalMove(Move):
-    def get_possible_moves(self, piece, board):
-        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
-        moves = []
-        max_steps = piece.max_steps if piece.max_steps is not None else max(board.rows, board.cols)
-        for dir_row, dir_col in directions:
-            for step in range(1, max_steps + 1):
-                new_row = piece.row + dir_row * step
-                new_col = piece.col + dir_col * step
-                if 0 <= new_row < board.rows and 0 <= new_col < board.cols:
-                    target = board.grid[new_row][new_col]
-                    if target is None:
-                        moves.append((new_row, new_col))
-                    else:
-                        if target.color != piece.color:
-                            moves.append((new_row, new_col))
-                        break
-                else:
-                    break
-        return moves
 
 class KnightMove(Move):
     def get_possible_moves(self, piece, board):
@@ -98,6 +55,98 @@ class PawnMove(Move):
             
         return moves
     
+    
+class RoyalGuardMove(Move):
+    def get_possible_moves(self, piece, board):
+        moves = []
+        row, col = piece.row, piece.col
+        
+        # Orthogonal moves (up, down, left, right)
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        for delta_row, delta_col in directions:
+            new_row = row + delta_row
+            new_col = col + delta_col
+            if 0 <= new_row < board.rows and 0 <= new_col < board.cols:
+                if board.grid[new_row][new_col] is None:
+                    moves.append((new_row, new_col))
+
+        # Two squares forward from starting row (like PawnMove logic)
+        if piece.color == "white":
+            start_row = board.rows - 3
+            direction = -1
+        else:
+            start_row = 2
+            direction = 1
+
+        if row == start_row:
+            # Forward two squares
+            new_row = row + 2 * direction
+            mid_row = row + direction
+            if (
+                0 <= new_row < board.rows
+                and board.grid[mid_row][col] is None
+                and board.grid[new_row][col] is None
+            ):
+                moves.append((new_row, col))
+            
+        # Diagonal captures 
+        for delta_row, delta_col in [(-1, -1), (-1, 1)]:
+            new_row = row + delta_row
+            new_col = col + delta_col
+            if 0 <= new_row < board.rows and 0 <= new_col < board.cols:
+                target = board.grid[new_row][new_col]
+                if target is not None and target.color != piece.color:
+                    moves.append((new_row, new_col))
+                    
+        return moves
+
+
+class StraightMove(Move):
+    def get_possible_moves(self, piece, board):
+        moves = []
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # up, down, left, right
+        max_steps = piece.max_steps if piece.max_steps is not None else max(len(board.grid), len(board.grid[0]))
+
+        for direction_row, direction_col in directions:
+            for step in range(1, max_steps + 1):
+                new_row = piece.row + direction_row * step
+                new_col = piece.col + direction_col * step
+                if 0 <= new_row < len(board.grid) and 0 <= new_col < len(board.grid[0]):
+                    target = board.grid[new_row][new_col]
+                    if target is None:
+                        moves.append((new_row, new_col))
+                    elif target.color != piece.color or piece.can_combine(target):
+                        moves.append((new_row, new_col))
+                        break  # Can't move past capture
+                    else:
+                        break  # Blocked by own piece
+                else:
+                    break  # Out of bounds
+        return moves
+
+
+class DiagonalMove(Move):
+    def get_possible_moves(self, piece, board):
+        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+        moves = []
+        max_steps = piece.max_steps if piece.max_steps is not None else max(board.rows, board.cols)
+        for dir_row, dir_col in directions:
+            for step in range(1, max_steps + 1):
+                new_row = piece.row + dir_row * step
+                new_col = piece.col + dir_col * step
+                if 0 <= new_row < board.rows and 0 <= new_col < board.cols:
+                    target = board.grid[new_row][new_col]
+                    if target is None:
+                        moves.append((new_row, new_col))
+                    else:
+                        if target.color != piece.color or piece.can_combine(target):
+                            moves.append((new_row, new_col))
+                        break
+                else:
+                    break
+        return moves
+
+
 class JumpOverMove(Move):
     def get_possible_moves(self, piece, board):
         directions = [
@@ -119,7 +168,8 @@ class JumpOverMove(Move):
             ):
                 moves.append((land_row, land_col))
         return moves
-
+    
+    
 class SwapMove(Move):
     def get_possible_moves(self, piece, board):
         # Directions: straight and diagonal
@@ -145,6 +195,8 @@ class SwapMove(Move):
         target_piece = board.grid[target_row][target_col]
         board.grid[piece.row][piece.col], board.grid[target_row][target_col] = target_piece, piece
         piece.row, piece.col, target_piece.row, target_piece.col = target_row, target_col, piece.row, piece.col
+
+
 
 
 

@@ -3,6 +3,9 @@ from game.board import Board
 from ui.display import Display
 from ui.dragger import Dragger
 from game.constants import WIDTH, HEIGHT, SQSIZE
+from history.move_history import MoveHistory
+from game.piece import Wizard, Prince
+
 
 def main():
     pygame.init()
@@ -44,10 +47,27 @@ def main():
                     for move in piece.moves:
                         possible_moves.extend(move.get_possible_moves(piece, board))
                     if (target_row, target_col) in possible_moves:
-                        # Move the piece
-                        board.grid[piece.row][piece.col] = None
-                        board.grid[target_row][target_col] = piece
-                        piece.row, piece.col = target_row, target_col
+                        target_piece = board.grid[target_row][target_col]
+                        # Wizard mounting dragon
+                        if (
+                            isinstance(piece, Wizard)
+                            and target_piece is not None
+                            and target_piece.name == "dragon"
+                            and target_piece.color == piece.color
+                        ):
+                            piece.use_ability("mount_dragon", board, target_piece)
+                            # Remove Wizard from original position
+                            board.grid[piece.row][piece.col] = None
+                        # Prince mounting lion
+                        elif (
+                            isinstance(piece, Prince)
+                            and target_piece is not None
+                            and target_piece.name == "lion"
+                            and target_piece.color == piece.color
+                        ):
+                            piece.use_ability("mount_lion", board, target_piece)
+                        else:
+                            board.move_piece(piece.row, piece.col, target_row, target_col)
                     dragger.stop_drag()
                     selected_piece = None  # Clear selection after drop
 

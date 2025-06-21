@@ -1,5 +1,6 @@
 from game.move import *
 
+
 class Piece:
     def __init__(self, name, color, row, col, rank=None, moves=None, effects=None, ability=None, max_steps=None):
         self.name = name
@@ -24,7 +25,19 @@ class Piece:
             all_moves.extend(move_obj.get_possible_moves(self, board))
         return all_moves
 
-
+    def can_combine(self, target):
+        return False
+    
+    def use_ability(self, ability_name, board, *args, **kwargs):
+        """
+        Call the ability with the given name, passing any additional arguments.
+        Returns the result of the ability's use() method, or None if not found.
+        """
+        for ability in self.ability:
+            if getattr(ability, "name", None) == ability_name:
+                return ability.use(self, board, *args, **kwargs)
+        return None  # Ability not found
+    
 # ================== Starting Pieces ==================
 
 class Pawn(Piece):
@@ -32,13 +45,11 @@ class Pawn(Piece):
         super().__init__("pawn", color, row, col, rank=rank, moves=moves)
 
 class RoyalGuard(Piece):
-    def __init__(self, color, row, col, rank=None, moves=[PawnMove()]):
+    def __init__(self, color, row, col, rank=None, moves=[RoyalGuardMove()]):
         super().__init__("royal_guard", color, row, col, rank=rank, moves=moves)
 
 class Knight(Piece):
     def __init__(self, color, row, col, rank=None, moves=[KnightMove()]):
-        if moves is None:
-            moves = [KnightMove()]
         super().__init__("knight", color, row, col, rank=rank, moves=moves)
 
 class Counselor(Piece):
@@ -50,13 +61,32 @@ class Rook(Piece):
         super().__init__("rook", color, row, col, rank=rank, moves=moves)
 
 class Wizard(Piece):
-    def __init__(self, color, row, col, rank=None, moves=None, effects=None, ability=None):
-        super().__init__("wizard", color, row, col, rank=rank, moves=moves, effects=effects, ability=ability)
+    def __init__(self, color, row, col, rank=None, moves=[DiagonalMove(), StraightMove()], effects=None, ability=None):
+        if moves is None:
+            moves = [DiagonalMove(), StraightMove()]
+        if ability is None:
+            from game.abilities import MountDragonAbility, UnmountDragonAbility
+            ability = [MountDragonAbility(), UnmountDragonAbility()]
+        super().__init__("wizard", color, row, col, rank=rank, moves=moves, effects=effects, ability=ability, max_steps=1)
 
+    def can_combine(self, target):
+        return (
+            target is not None and
+            getattr(target, "name", None) == "dragon" and
+            getattr(target, "color", None) == self.color
+        )
+        
 class Prince(Piece):
     def __init__(self, color, row, col, rank=None, moves=None, effects=None, ability=None):
         super().__init__("prince", color, row, col, rank=rank, moves=moves, effects=effects, ability=ability)
 
+    def can_combine(self, target):
+        return (
+            target is not None and
+            getattr(target, "name", None) == "lion" and
+            getattr(target, "color", None) == self.color
+        )
+        
 class Dragon(Piece):
     def __init__(self, color, row, col, rank=None, moves=None):
         super().__init__("dragon", color, row, col, rank=rank, moves=moves)
