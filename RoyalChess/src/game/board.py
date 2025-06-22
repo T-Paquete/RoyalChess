@@ -96,8 +96,18 @@ class Board:
 
     def move_piece(self, start_row, start_col, end_row, end_col):
         """
-        Moves a piece from (start_row, start_col) to (end_row, end_col) and records it in move_history.
+        Moves a piece from the starting position to the ending position on the board.
+        Updates the board grid, clears the starting position, updates the piece's coordinates,
+        and records the move in the move history, including any captured piece.
+        Args:
+            start_row (int): The row index of the piece's starting position.
+            start_col (int): The column index of the piece's starting position.
+            end_row (int): The row index of the piece's destination position.
+            end_col (int): The column index of the piece's destination position.
+        Returns:
+            None
         """
+
         piece = self.grid[start_row][start_col]
         captured = self.grid[end_row][end_col]
         self.grid[end_row][end_col] = piece

@@ -3,8 +3,9 @@ from game.board import Board
 from ui.display import Display
 from ui.dragger import Dragger
 from game.constants import WIDTH, HEIGHT, SQSIZE
-from history.move_history import MoveHistory
-from game.piece import Wizard, Prince
+from game_controller.game_manager import GameManager 
+
+
 
 
 def main():
@@ -15,7 +16,8 @@ def main():
     board = Board()
     display = Display()
     dragger = Dragger()
-    selected_piece = None  # Track the selected piece even when not dragging
+    game_manager = GameManager(board)
+    selected_piece = None
     
     running = True
     while running:
@@ -43,31 +45,8 @@ def main():
                     mouse_x, mouse_y = pygame.mouse.get_pos()
                     target_row, target_col = mouse_y // SQSIZE, mouse_x // SQSIZE
                     piece = dragger.selected_piece
-                    possible_moves = []
-                    for move in piece.moves:
-                        possible_moves.extend(move.get_possible_moves(piece, board))
-                    if (target_row, target_col) in possible_moves:
-                        target_piece = board.grid[target_row][target_col]
-                        # Wizard mounting dragon
-                        if (
-                            isinstance(piece, Wizard)
-                            and target_piece is not None
-                            and target_piece.name == "dragon"
-                            and target_piece.color == piece.color
-                        ):
-                            piece.use_ability("mount_dragon", board, target_piece)
-                            # Remove Wizard from original position
-                            board.grid[piece.row][piece.col] = None
-                        # Prince mounting lion
-                        elif (
-                            isinstance(piece, Prince)
-                            and target_piece is not None
-                            and target_piece.name == "lion"
-                            and target_piece.color == piece.color
-                        ):
-                            piece.use_ability("mount_lion", board, target_piece)
-                        else:
-                            board.move_piece(piece.row, piece.col, target_row, target_col)
+                    if piece:
+                        game_manager.make_move(piece, target_row, target_col)
                     dragger.stop_drag()
                     selected_piece = None  # Clear selection after drop
 

@@ -37,6 +37,7 @@ class MountLionAbility(Ability):
         super().__init__("mount_lion")
 
     def use(self, prince, board, lion):
+        from game.piece import MountedPrince
         # i) Only the prince can mount the lion
         if prince.name != "prince" or lion.name != "lion":
             return False  # Invalid usage
@@ -59,6 +60,7 @@ class UnmountDragonAbility(Ability):
         super().__init__("unmount_dragon")
 
     def use(self, mounted_wizard, board):
+        from game.piece import Wizard, Dragon
         # i) The dragon stays in the current square
         # ii) The wizard can only unmount to a contiguous empty square
         directions = [
@@ -82,6 +84,7 @@ class UnmountLionAbility(Ability):
         super().__init__("unmount_lion")
 
     def use(self, mounted_prince, board):
+        from game.piece import Prince, Lion
         # i) The lion stays in the current square
         # ii) The prince can only unmount to a contiguous empty square
         directions = [
