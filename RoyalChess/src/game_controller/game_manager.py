@@ -1,3 +1,5 @@
+from game.move import SwapMove
+
 class GameManager:
     def __init__(self, board):
         self.board = board
@@ -22,23 +24,35 @@ class GameManager:
             None
         """
         possible_moves = []
+        swap_move = None
         for move in piece.moves:
+            if isinstance(move, SwapMove) and (target_row, target_col) in move.get_possible_moves(piece, self.board):
+                swap_move = move
             possible_moves.extend(move.get_possible_moves(piece, self.board))
         if (target_row, target_col) not in possible_moves:
             return # Invalid move
-        
+
         target_piece = self.board.grid[target_row][target_col]
+
         # Mounting logic
         if self.is_mounting(piece, target_piece):
             self.mount(piece, target_piece)
-            self.board.grid[piece.row][piece.col] = None # Clear the piece's original position
+            self.board.grid[piece.row][piece.col] = None
+            return
+
         # Dismounting logic
-        elif self.is_dismounting(piece):  # <-- FIXED: removed target_piece argument
+        if self.is_dismounting(piece):
             self.dismount(piece)
-        else:
-            self.board.move_piece(piece.row, piece.col, target_row, target_col)
-            
-            
+            return
+
+        # Swap logic
+        if swap_move is not None:
+            self.swap(piece, swap_move, target_row, target_col)
+            return  # <-- This prevents a capture after swap
+
+        # Standard move
+        self.board.move_piece(piece.row, piece.col, target_row, target_col)
+        
     def is_mounting(self, piece, target_piece):
         """
         Determines if a given piece is mounting another piece according to specific rules.
@@ -122,6 +136,15 @@ class GameManager:
                 piece.use_ability("unmount_dragon", self.board)
             elif piece.name == "mounted_prince":
                 piece.use_ability("unmount_lion", self.board)
+                
+    def swap(self, piece, swap_move, target_row, target_col):
+        """
+        Swaps the given piece with the piece at the target location using the SwapMove logic.
+        """
+        target_piece = self.board.grid[target_row][target_col]
+        if type(target_piece).__name__ in ("Lion", "Dragon"):
+            return  # Do not swap
+        swap_move.execute_swap(piece, self.board, target_row, target_col)
 
 
 

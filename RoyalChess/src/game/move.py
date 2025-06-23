@@ -89,9 +89,10 @@ class RoyalGuardMove(Move):
             ):
                 moves.append((new_row, col))
             
-        # Diagonal captures 
-        for delta_row, delta_col in [(-1, -1), (-1, 1)]:
-            new_row = row + delta_row
+        # Diagonal captures only in the forward direction
+        forward = -1 if piece.color == "white" else 1
+        for delta_col in [-1, 1]:
+            new_row = row + forward
             new_col = col + delta_col
             if 0 <= new_row < board.rows and 0 <= new_col < board.cols:
                 target = board.grid[new_row][new_col]
@@ -147,32 +148,55 @@ class DiagonalMove(Move):
         return moves
 
 
-class JumpOverMove(Move):
+class JumpOverStraightMove(Move):
     def get_possible_moves(self, piece, board):
-        directions = [
-            (-1, 0), (1, 0), (0, -1), (0, 1),      # straight
-            (-1, -1), (-1, 1), (1, -1), (1, 1)     # diagonal
-        ]
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # up, down, left, right
         moves = []
         for dir_row, dir_col in directions:
             adj_row = piece.row + dir_row
             adj_col = piece.col + dir_col
             land_row = piece.row + 2 * dir_row
             land_col = piece.col + 2 * dir_col
-            # Check if adjacent square is on board and has a piece
             if (
                 0 <= adj_row < board.rows and 0 <= adj_col < board.cols and
                 board.grid[adj_row][adj_col] is not None and
-                0 <= land_row < board.rows and 0 <= land_col < board.cols and
-                board.grid[land_row][land_col] is None
+                0 <= land_row < board.rows and 0 <= land_col < board.cols
             ):
-                moves.append((land_row, land_col))
+                target = board.grid[land_row][land_col]
+                # Can move if landing square is empty
+                if target is None:
+                    moves.append((land_row, land_col))
+                # Or can capture if landing square has opponent's piece
+                elif target.color != piece.color:
+                    moves.append((land_row, land_col))
         return moves
-    
+
+class JumpOverDiagonalMove(Move):
+    def get_possible_moves(self, piece, board):
+        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # diagonal directions
+        moves = []
+        for dir_row, dir_col in directions:
+            adj_row = piece.row + dir_row
+            adj_col = piece.col + dir_col
+            land_row = piece.row + 2 * dir_row
+            land_col = piece.col + 2 * dir_col
+            if (
+                0 <= adj_row < board.rows and 0 <= adj_col < board.cols and
+                board.grid[adj_row][adj_col] is not None and
+                0 <= land_row < board.rows and 0 <= land_col < board.cols
+            ):
+                target = board.grid[land_row][land_col]
+                # Can move if landing square is empty
+                if target is None:
+                    moves.append((land_row, land_col))
+                # Or can capture if landing square has opponent's piece
+                elif target.color != piece.color:
+                    moves.append((land_row, land_col))
+        return moves
+        
     
 class SwapMove(Move):
     def get_possible_moves(self, piece, board):
-        # Directions: straight and diagonal
         directions = [
             (-1, 0), (1, 0), (0, -1), (0, 1),      # straight
             (-1, -1), (-1, 1), (1, -1), (1, 1)     # diagonal
@@ -181,22 +205,26 @@ class SwapMove(Move):
         for dir_row, dir_col in directions:
             adj_row = piece.row + dir_row
             adj_col = piece.col + dir_col
-            # Check if adjacent square is on board and has a piece
             if (
                 0 <= adj_row < board.rows and 0 <= adj_col < board.cols and
-                board.grid[adj_row][adj_col] is not None
+                board.grid[adj_row][adj_col] is not None and
+                board.grid[adj_row][adj_col].color == piece.color
             ):
-                # The move is to swap with the adjacent piece
-                moves.append((adj_row, adj_col))
+                target_piece = board.grid[adj_row][adj_col]
+                if type(target_piece).__name__ not in ("Lion", "Dragon"):
+                    moves.append((adj_row, adj_col))
         return moves
-
+    
     def execute_swap(self, piece, board, target_row, target_col):
-        # Swap the positions of the piece and the target piece
         target_piece = board.grid[target_row][target_col]
+        if target_piece is not None and target_piece.color != piece.color:
+            return # Invalid swap
+
+        # Prevent swapping with Lion or Dragon
+        if target_piece is not None and type(target_piece).__name__ in ("Lion", "Dragon"):
+            return # Cannot swap with Lion or Dragon
+        
+        # Swap the pieces
         board.grid[piece.row][piece.col], board.grid[target_row][target_col] = target_piece, piece
+        # Update their positions
         piece.row, piece.col, target_piece.row, target_piece.col = target_row, target_col, piece.row, piece.col
-
-
-
-
-

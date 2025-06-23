@@ -61,7 +61,7 @@ class Rook(Piece):
         super().__init__("rook", color, row, col, rank=rank, moves=moves)
 
 class Wizard(Piece):
-    def __init__(self, color, row, col, rank=None, moves=[DiagonalMove(), StraightMove()], effects=None, ability=None):
+    def __init__(self, color, row, col, rank=None, moves=[DiagonalMove(), StraightMove(), SwapMove()], effects=None, ability=None):
         if moves is None:
             moves = [DiagonalMove(), StraightMove()]
         if ability is None:
@@ -88,11 +88,11 @@ class Prince(Piece):
         )
         
 class Dragon(Piece):
-    def __init__(self, color, row, col, rank=None, moves=None):
+    def __init__(self, color, row, col, rank=None, moves=[JumpOverDiagonalMove()]):
         super().__init__("dragon", color, row, col, rank=rank, moves=moves)
 
 class Lion(Piece):
-    def __init__(self, color, row, col, rank=None, moves=None):
+    def __init__(self, color, row, col, rank=None, moves=[JumpOverStraightMove()]):
         super().__init__("lion", color, row, col, rank=rank, moves=moves)
 
 class King(Piece):
