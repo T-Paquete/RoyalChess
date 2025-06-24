@@ -1,4 +1,4 @@
-from game.move import SwapMove
+from game.move import SwapMove, CombinedMove
 
 class GameManager:
     def __init__(self, board):
@@ -28,6 +28,11 @@ class GameManager:
         for move in piece.moves:
             if isinstance(move, SwapMove) and (target_row, target_col) in move.get_possible_moves(piece, self.board):
                 swap_move = move
+            elif isinstance(move, CombinedMove):
+                # Look for SwapMove inside CombinedMove
+                for sub_move in move.get_moves_by_type(SwapMove):
+                    if (target_row, target_col) in sub_move.get_possible_moves(piece, self.board):
+                        swap_move = sub_move
             possible_moves.extend(move.get_possible_moves(piece, self.board))
         if (target_row, target_col) not in possible_moves:
             return # Invalid move

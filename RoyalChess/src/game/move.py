@@ -1,5 +1,5 @@
 class Move:
-    def get_possible_moves(self, piece, board):
+    def get_possible_moves(self):
         """
         Returns a list of (row, col) tuples representing possible moves for the piece.
         Should be overridden by subclasses.
@@ -228,3 +228,26 @@ class SwapMove(Move):
         board.grid[piece.row][piece.col], board.grid[target_row][target_col] = target_piece, piece
         # Update their positions
         piece.row, piece.col, target_piece.row, target_piece.col = target_row, target_col, piece.row, piece.col
+
+
+class CombinedMove(Move):
+    def __init__(self, piece_classes):
+        self.piece_classes = piece_classes
+        
+    def get_possible_moves(self, piece, board):
+        combined_moves = set()
+        for cls in self.piece_classes:
+            # Create a temporary instanve of the class at the current position
+            temp_piece = cls(piece.color, piece.row, piece.col)
+            for move in temp_piece.moves:
+                combined_moves.update(move.get_possible_moves(temp_piece, board))
+        return list(combined_moves)
+    
+    def get_moves_by_type(self, move_type):
+        moves = []
+        for cls in self.piece_classes:
+            temp_piece = cls("color", 0, 0)
+            for move in temp_piece.moves:
+                if isinstance(move, move_type):
+                    moves.append(move)
+        return moves

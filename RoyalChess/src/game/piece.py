@@ -77,8 +77,13 @@ class Wizard(Piece):
         )
         
 class Prince(Piece):
-    def __init__(self, color, row, col, rank=None, moves=None, effects=None, ability=None):
-        super().__init__("prince", color, row, col, rank=rank, moves=moves, effects=effects, ability=ability)
+    def __init__(self, color, row, col, rank=None, moves=[DiagonalMove(), StraightMove()], effects=None, ability=None):
+        if moves is None:
+            moves = [DiagonalMove(), StraightMove()]
+        if ability is None:
+            from game.abilities import MountLionAbility, UnmountLionAbility
+            ability = [MountLionAbility(), UnmountLionAbility()]
+        super().__init__("prince", color, row, col, rank=rank, moves=moves, effects=effects, ability=ability, max_steps=1)
 
     def can_combine(self, target):
         return (
@@ -96,7 +101,7 @@ class Lion(Piece):
         super().__init__("lion", color, row, col, rank=rank, moves=moves)
 
 class King(Piece):
-    def __init__(self, color, row, col, rank=None, moves=[DiagonalMove(), StraightMove()], effects=None):
+    def __init__(self, color, row, col, rank=None, moves=[DiagonalMove(), StraightMove(), KnightMove()], effects=None):
         super().__init__("king", color, row, col, rank=rank, moves=moves, effects=effects, max_steps=1)
 
 class Queen(Piece):
@@ -121,10 +126,12 @@ class BlackHat(Piece):
 
 class MountedWizard(Piece):
     def __init__(self, color, row, col, rank=None, moves=None, ability=None):
+        moves = [CombinedMove([Wizard, Dragon])]
         super().__init__("mounted_wizard", color, row, col, rank=rank, moves=moves, ability=ability)
 
 class MountedPrince(Piece):
     def __init__(self, color, row, col, rank=None, moves=None, ability=None):
+        moves = [CombinedMove([Prince, Lion])]
         super().__init__("mounted_prince", color, row, col, rank=rank, moves=moves, ability=ability)
 
 class GreyHat(Piece):
