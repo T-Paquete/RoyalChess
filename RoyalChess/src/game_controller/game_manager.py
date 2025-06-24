@@ -39,7 +39,13 @@ class GameManager:
 
         target_piece = self.board.grid[target_row][target_col]
 
-        # Mounting logic
+        # Hat combining logic
+        if self.is_combining_hats(piece, target_piece):
+            self.combine_hats(piece, target_piece)
+            self.board.grid[piece.row][piece.col] = None
+            return
+
+        # Mounting logic (for wizard/dragon, prince/lion)
         if self.is_mounting(piece, target_piece):
             self.mount(piece, target_piece)
             self.board.grid[piece.row][piece.col] = None
@@ -58,6 +64,11 @@ class GameManager:
         # Standard move
         self.board.move_piece(piece.row, piece.col, target_row, target_col)
         
+        
+# ---------------------------------------------
+# Mount and Dismount Wizard and Prince
+# ---------------------------------------------
+
     def is_mounting(self, piece, target_piece):
         """
         Determines if a given piece is mounting another piece according to specific rules.
@@ -142,6 +153,11 @@ class GameManager:
             elif piece.name == "mounted_prince":
                 piece.use_ability("unmount_lion", self.board)
                 
+                
+# ---------------------------------------------
+# Swap Pieces
+# ---------------------------------------------
+                
     def swap(self, piece, swap_move, target_row, target_col):
         """
         Swaps the given piece with the piece at the target location using the SwapMove logic.
@@ -151,5 +167,15 @@ class GameManager:
             return  # Do not swap
         swap_move.execute_swap(piece, self.board, target_row, target_col)
 
+# ---------------------------------------------
+# Combime WhiteHat and BlackHat
+# ---------------------------------------------
 
-
+    def is_combining_hats(self, piece, target_piece):
+        if piece is None or target_piece is None:
+            return False
+        names = {piece.name, target_piece.name}
+        return names == {"white_hat", "black_hat"}
+    
+    def combine_hats(self, piece, target_piece):
+        piece.use_ability("combine_hat", self.board, target_piece)

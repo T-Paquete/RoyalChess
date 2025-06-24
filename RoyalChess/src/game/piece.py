@@ -101,7 +101,7 @@ class Lion(Piece):
         super().__init__("lion", color, row, col, rank=rank, moves=moves)
 
 class King(Piece):
-    def __init__(self, color, row, col, rank=None, moves=[DiagonalMove(), StraightMove(), KnightMove()], effects=None):
+    def __init__(self, color, row, col, rank=None, moves=[DiagonalMove(), StraightMove()], effects=None):
         super().__init__("king", color, row, col, rank=rank, moves=moves, effects=effects, max_steps=1)
 
 class Queen(Piece):
@@ -111,17 +111,32 @@ class Queen(Piece):
 # ================== Out of board Pieces ==================
 
 class Symbol(Piece):
-    def __init__(self, color, row, col, rank=None, moves=None, effects=None):
-        super().__init__("symbol", color, row, col, rank=rank, moves=moves, effects=effects)
+    def __init__(self, color, row, col, rank=None, moves=[NonCapturingQueenMove()], effects=None):
+        super().__init__("symbol", color, row, col, rank=rank, moves=moves, effects=effects, max_steps=1)
 
 class WhiteHat(Piece):
     def __init__(self, color, row, col, rank=None, moves=None, effects=None, ability=None):
+        if moves is None:
+            moves = [NonCapturingHatMove()]
+        if ability is None:
+            from game.abilities import CombineHatAbility
+            ability = [CombineHatAbility()]
         super().__init__("white_hat", color, row, col, rank=rank, moves=moves, effects=effects, ability=ability)
-
+        
+    def can_combine(self, target):
+        return (target is not None and target.name == "black_hat")
+        
 class BlackHat(Piece):
     def __init__(self, color, row, col, rank=None, moves=None, effects=None, ability=None):
+        if moves is None:
+            moves = [NonCapturingHatMove()]
+        if ability is None:
+            from game.abilities import CombineHatAbility
+            ability = [CombineHatAbility()]
         super().__init__("black_hat", color, row, col, rank=rank, moves=moves, effects=effects, ability=ability)
 
+    def can_combine(self, target):
+        return (target is not None and target.name == "white_hat")
 # ================== Combined Pieces ==================
 
 class MountedWizard(Piece):
@@ -136,4 +151,5 @@ class MountedPrince(Piece):
 
 class GreyHat(Piece):
     def __init__(self, color, row, col, rank=None, moves=None, effects=None, ability=None):
+        moves = [CombinedMove([WhiteHat, BlackHat])]
         super().__init__("grey_hat", color, row, col, rank=rank, moves=moves, effects=effects, ability=ability)

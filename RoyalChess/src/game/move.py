@@ -251,3 +251,58 @@ class CombinedMove(Move):
                 if isinstance(move, move_type):
                     moves.append(move)
         return moves
+    
+
+class NonCapturingQueenMove(Move):
+    def get_possible_moves(self, piece, board):
+        moves = []
+        directions = [
+            (-1, 0), (1, 0), (0, -1), (0, 1),  # straight
+            (-1, -1), (-1, 1), (1, -1), (1, 1)  # diagonal
+        ]
+        max_steps = piece.max_steps if piece.max_steps is not None else max(board.rows, board.cols)
+        for dir_row, dir_col in directions:
+            for step in range(1, max_steps + 1):
+                new_row = piece.row + dir_row * step
+                new_col = piece.col + dir_col * step
+                if 0 <= new_row < board.rows and 0 <= new_col < board.cols:
+                    target = board.grid[new_row][new_col]
+                    if target is None:
+                        moves.append((new_row, new_col))
+                    else:
+                        break # Stop at the first piece encountered
+                else:
+                    break # Out of bounds
+        return moves
+
+class NonCapturingHatMove(Move):
+    def get_possible_moves(self, piece, board):
+        moves = []
+        directions = [
+            (-1, 0), (1, 0), (0, -1), (0, 1),  # straight
+            (-1, -1), (-1, 1), (1, -1), (1, 1)  # diagonal
+        ]
+        max_steps = piece.max_steps if piece.max_steps is not None else max(board.rows, board.cols)
+        for dir_row, dir_col in directions:
+            for step in range(1, max_steps + 1):
+                new_row = piece.row + dir_row * step
+                new_col = piece.col + dir_col * step
+                if 0 <= new_row < board.rows and 0 <= new_col < board.cols:
+                    target = board.grid[new_row][new_col]
+                    # Allow moving to an empty square
+                    if target is None:
+                        moves.append((new_row, new_col))
+                    # Allow movintg onto the other hat
+                    elif (
+                        (piece.name == "white_hat" and target.name == "black_hat") or
+                        (piece.name == "black_hat" and target.name == "white_hat")
+                    ):
+                        moves.append((new_row, new_col))
+                        break # Stop at the first piece encountered
+                    else:
+                        break # Stop at the first piece encountered
+                else:
+                    break # Out of bounds
+        return moves
+    
+    

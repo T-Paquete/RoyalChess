@@ -9,9 +9,12 @@ WIDTH = SQSIZE * COLS
 HEIGHT = SQSIZE * ROWS
 
 # Board colors
-LIGHT_COLOR = (234, 235, 200)
-DARK_COLOR = (119, 154, 88)
-WHITE = (255, 255, 255)
-LIGHT_RED = (255, 100, 100, 120)
-DARK_RED = (180, 0, 0, 120)
+# Board square colors
+LIGHT_COLOR = (234, 235, 200)    # Light squares on the board
+DARK_COLOR = (119, 154, 88)      # Dark squares on the board
+
+# Highlight and piece colors
+WHITE = (255, 255, 255)          # White pieces or highlights
+LIGHT_RED = (255, 102, 102, 120)  # Light red highlight (e.g., move indicator)
+DARK_RED = (255, 102, 102, 120)   # Lighter red highlight (e.g., capture indicator)
 

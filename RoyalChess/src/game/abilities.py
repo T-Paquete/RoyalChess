@@ -32,29 +32,6 @@ class MountDragonAbility(Ability):
         board.grid[dragon.row][dragon.col] = MountedWizard(wizard.color, dragon.row, dragon.col)
         return True  # Successful mounting
 
-class MountLionAbility(Ability):
-    def __init__(self):
-        super().__init__("mount_lion")
-
-    def use(self, prince, board, lion):
-        from game.piece import MountedPrince
-        # i) Only the prince can mount the lion
-        if prince.name != "prince" or lion.name != "lion":
-            return False  # Invalid usage
-
-        # ii) The lion must be reachable by the prince (in prince's available moves)
-        available_moves = []
-        for move in prince.moves:
-            available_moves.extend(move.get_possible_moves(prince, board))
-        if (lion.row, lion.col) not in available_moves:
-            return False  # Lion not reachable
-
-        # iii) Prince moves to lion's square and becomes MountedPrince
-        board.grid[prince.row][prince.col] = None
-        board.grid[lion.row][lion.col] = MountedPrince(prince.color, lion.row, lion.col)
-        return True  # Successful mounting
-
-
 class UnmountDragonAbility(Ability):
     def __init__(self):
         super().__init__("unmount_dragon")
@@ -79,6 +56,28 @@ class UnmountDragonAbility(Ability):
         return False  # No available square to unmount
 
 
+class MountLionAbility(Ability):
+    def __init__(self):
+        super().__init__("mount_lion")
+
+    def use(self, prince, board, lion):
+        from game.piece import MountedPrince
+        # i) Only the prince can mount the lion
+        if prince.name != "prince" or lion.name != "lion":
+            return False  # Invalid usage
+
+        # ii) The lion must be reachable by the prince (in prince's available moves)
+        available_moves = []
+        for move in prince.moves:
+            available_moves.extend(move.get_possible_moves(prince, board))
+        if (lion.row, lion.col) not in available_moves:
+            return False  # Lion not reachable
+
+        # iii) Prince moves to lion's square and becomes MountedPrince
+        board.grid[prince.row][prince.col] = None
+        board.grid[lion.row][lion.col] = MountedPrince(prince.color, lion.row, lion.col)
+        return True  # Successful mounting
+
 class UnmountLionAbility(Ability):
     def __init__(self):
         super().__init__("unmount_lion")
@@ -102,3 +101,29 @@ class UnmountLionAbility(Ability):
                     return True  # Successfully unmounted
         return False  # No available square to unmount
 
+
+class CombineHatAbility(Ability):
+    def __init__(self):
+        super().__init__("combine_hat")
+        
+    def use(self, hat_initiator, board, hat_target):
+        from game.piece import GreyHat
+        # Check if the pieces have different hat colors
+        if not (
+            (hat_initiator.name == "white_hat" and hat_target.name == "black_hat") or
+            (hat_initiator.name == "black_hat" and hat_target.name == "white_hat")
+        ):
+            return False
+        
+        # Check if the target is reachable by the initiator
+        available_moves = []
+        for move in hat_initiator.moves:
+            available_moves.extend(move.get_possible_moves(hat_initiator, board))
+        if (hat_target.row, hat_target.col) not in available_moves:
+            return False
+        
+        # Clear initiator's square and place GreyHat on target's square
+        board.grid[hat_initiator.row][hat_initiator.col] = None
+        board.grid[hat_target.row][hat_target.col] = GreyHat(hat_initiator.color, hat_target.row, hat_target.col)
+        
+        return True
