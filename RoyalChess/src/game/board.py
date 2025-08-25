@@ -154,6 +154,25 @@ class Board:
         self.move_history = MoveHistory()
         self.initial_piece_setup()
 
+    def swap_positions(self, row_a, col_a, row_b, col_b):
+        """
+        Swap two board squares (used for custom setup rearranging).
+        Updates piece.row/piece.col for moved pieces. Does not record a move in history.
+        """
+        if not (0 <= row_a < self.rows and 0 <= col_a < self.cols):
+            return
+        if not (0 <= row_b < self.rows and 0 <= col_b < self.cols):
+            return
+        piece_a = self.grid[row_a][col_a]
+        piece_b = self.grid[row_b][col_b]
+        # swap on grid
+        self.grid[row_a][col_a], self.grid[row_b][col_b] = piece_b, piece_a
+        # update piece coords if pieces exist
+        if piece_a:
+            piece_a.row, piece_a.col = row_b, col_b
+        if piece_b:
+            piece_b.row, piece_b.col = row_a, col_a
+
     def undo_last_move(self):
         """
         Undo the last move recorded in move_history and restore board state.

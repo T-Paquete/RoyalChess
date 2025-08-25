@@ -19,7 +19,10 @@ class Menu:
             Button((x, y, btn_w, btn_h), "Reset game", self._on_reset, font=self.font),
             Button((x, y + btn_h + 10, btn_w, btn_h), "Undo move", self._on_undo, font=self.font),
             Button((x, y + (btn_h + 10) * 2, btn_w, btn_h), "Flip board", self._on_flip, font=self.font),
+            Button((x, y + (btn_h + 10) * 3, btn_w, btn_h), "Custom: Off", self._on_toggle_custom, font=self.font),
         ]
+        # keep a direct reference to the custom toggle button so we can update its label
+        self.custom_button = self.buttons[-1]
 
     def _on_reset(self):
         try:
@@ -37,6 +40,14 @@ class Menu:
     def _on_flip(self):
         try:
             self.game_manager.toggle_flip()
+        except Exception:
+            pass
+
+    def _on_toggle_custom(self):
+        try:
+            enabled = self.game_manager.toggle_custom_setup()
+            # update label to reflect state
+            self.custom_button.label = "Custom: On" if enabled else "Custom: Off"
         except Exception:
             pass
 

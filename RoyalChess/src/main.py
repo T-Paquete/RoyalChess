@@ -77,7 +77,11 @@ def main():
                     if 0 <= target_row < board.rows and 0 <= target_col < board.cols:
                         piece = dragger.selected_piece
                         if piece:
-                            game_manager.make_move(piece, target_row, target_col)
+                            # if in custom setup mode, attempt custom reposition (swap within allowed groups)
+                            if getattr(game_manager, "custom_setup", False):
+                                game_manager.custom_reposition(piece, target_row, target_col)
+                            else:
+                                game_manager.make_move(piece, target_row, target_col)
                     dragger.stop_drag()
                     selected_piece = None
 

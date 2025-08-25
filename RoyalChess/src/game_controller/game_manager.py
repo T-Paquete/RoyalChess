@@ -5,10 +5,57 @@ class GameManager:
         self.board = board
         # track whether board is flipped for rendering/input
         self.flipped = False
+        # custom setup mode (when True, dragging/swapping rearranges pieces instead of making normal moves)
+        self.custom_setup = False
 
     def toggle_flip(self):
         """Toggle board orientation."""
         self.flipped = not self.flipped
+
+    def toggle_custom_setup(self):
+        """Toggle custom initial-position setup mode."""
+        self.custom_setup = not self.custom_setup
+        return self.custom_setup
+    
+    def is_same_group_swap_allowed(self, name_a, name_b):
+        """Return True when two piece names are allowed to swap in custom setup."""
+        groups = [
+            {"pawn", "royal_guard"},
+            {"counselor", "knight"},            # bishops & knights (counselor acts as bishop)
+            {"wizard", "dragon", "lion", "prince"},
+            {"king", "queen"},
+        ]
+        for grp in groups:
+            if name_a in grp and name_b in grp:
+                return True
+        return False
+
+    def custom_reposition(self, piece, target_row, target_col):
+        """
+        In custom setup mode: attempt to swap the selected piece with the piece on target square.
+        Allowed only when the target square contains a piece and both pieces belong to the same allowed group.
+        Returns True if swap performed, False otherwise.
+        """
+        if piece is None:
+            return False
+        if not self.custom_setup:
+            return False
+
+        src_row, src_col = piece.row, piece.col
+        if not (0 <= target_row < self.board.rows and 0 <= target_col < self.board.cols):
+            return False
+
+        target_piece = self.board.grid[target_row][target_col]
+        # only swaps between allowed groups; do not permit swapping with empty square
+        if target_piece is None:
+            return False
+
+        if not self.is_same_group_swap_allowed(piece.name, target_piece.name):
+            return False
+
+        # perform swap on board (does not record in move history)
+        self.board.swap_positions(src_row, src_col, target_row, target_col)
+        return True
 
     def set_flip(self, value: bool):
         """Set board orientation explicitly."""
