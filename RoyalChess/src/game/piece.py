@@ -20,9 +20,27 @@ class Piece:
         self.moved = True 
 
     def get_possible_moves(self, board):
+        """
+        Collect moves from move objects but:
+          - if the piece itself is on a forbidden row (top or bottom) return no moves
+          - filter out any target squares that are on a forbidden row
+        """
+        forbidden_rows = {0, board.rows - 1}
+
+        # Pieces located on the forbidden rows are not allowed to move.
+        if self.row in forbidden_rows:
+            return []
+
         all_moves = []
         for move_obj in self.moves:
-            all_moves.extend(move_obj.get_possible_moves(self, board))
+            # Each move object returns (row, col) pairs
+            possible_from_move = move_obj.get_possible_moves(self, board)
+            for target_row, target_col in possible_from_move:
+                # do not allow moving onto top/bottom rows
+                if target_row in forbidden_rows:
+                    continue
+                all_moves.append((target_row, target_col))
+
         return all_moves
 
     def can_combine(self, target):
