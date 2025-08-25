@@ -3,6 +3,18 @@ import os
 from game.constants import LIGHT_COLOR, DARK_COLOR, WHITE, SQSIZE, COLS, ROWS, DARK_RED, LIGHT_RED
 from game.piece import Piece
 
+from game.constants import SQSIZE
+
+def _board_to_screen(col, row, board, flip: bool):
+    """Return top-left pixel (x, y) for a square (col,row) respecting flip."""
+    if not flip:
+        screen_x = col * SQSIZE
+        screen_y = row * SQSIZE
+    else:
+        screen_x = (board.cols - 1 - col) * SQSIZE
+        screen_y = (board.rows - 1 - row) * SQSIZE
+    return screen_x, screen_y
+
 class Display:
     def __init__(self):
         self.piece_images = {}
@@ -25,14 +37,15 @@ class Display:
         return self.piece_images[key]
 
 
-    def draw_pieces(self, screen, board, exclude_piece=None):
+    def draw_pieces(self, screen, board, exclude_piece=None, flip=False):
         for row in range(len(board.grid)): # 
             for col in range(len(board.grid[row])): #
                 piece = board.grid[row][col]
                 if piece and piece != exclude_piece:
+                    screen_x, screen_y = _board_to_screen(col, row, board, flip)
                     image = self.load_piece_image(piece)
-                    x = col * SQSIZE + (SQSIZE - image.get_width()) // 2
-                    y = row * SQSIZE + (SQSIZE - image.get_height()) // 2
+                    x = screen_x + (SQSIZE - image.get_width()) // 2
+                    y = screen_y + (SQSIZE - image.get_height()) // 2
                     screen.blit(image, (x, y))
     
     
@@ -40,18 +53,19 @@ class Display:
         # Draw the board squares
         self.draw_board(screen)
         # Draw all pieces except the one being dragged
-        self.draw_pieces(screen, board, exclude_piece=dragger.selected_piece if dragger.is_dragging() else None)
+        self.draw_pieces(screen, board, exclude_piece=dragger.selected_piece if dragger.is_dragging() else None, flip=board.flip)
         # Optionally, highlight possible moves for the selected piece
         if dragger.is_dragging() and dragger.selected_piece:
-            self.draw_possible_moves(screen, dragger.selected_piece, board)
-            self.draw_dragged_piece(screen, dragger)
+            self.draw_possible_moves(screen, dragger.selected_piece, board, flip=board.flip)
+            self.draw_dragged_piece(screen, dragger, flip=board.flip)
         # Update the display
         pygame.display.flip()
 
 
-    def draw_dragged_piece(self, screen, dragger):
+    def draw_dragged_piece(self, screen, dragger, flip=False):
         if dragger.is_dragging() and dragger.selected_piece:
-            image = self.load_piece_image(dragger.selected_piece)
+            piece = dragger.selected_piece
+            image = self.load_piece_image(piece)
             x = dragger.mouse_x - image.get_width() // 2
             y = dragger.mouse_y - image.get_height() // 2
             screen.blit(image, (x, y))
@@ -66,16 +80,17 @@ class Display:
                 rect = (col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(screen, color, rect)
 
-    def draw_possible_moves(self, screen, piece, board):
+    def draw_possible_moves(self, screen, piece, board, flip=False):
         if piece is None:
             return
         possible_moves = piece.get_possible_moves(board)
         for row, col in possible_moves:
+            screen_x, screen_y = _board_to_screen(col, row, board, flip)
             is_light_square = (row + col) % 2 == 0
             color = LIGHT_RED if is_light_square else DARK_RED
             surface = pygame.Surface((SQSIZE, SQSIZE), pygame.SRCALPHA)
             pygame.draw.rect(surface, color, (0, 0, SQSIZE, SQSIZE))
-            screen.blit(surface, (col * SQSIZE, row * SQSIZE))
+            screen.blit(surface, (screen_x, screen_y))
 
 
 

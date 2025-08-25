@@ -17,7 +17,8 @@ class Menu:
         y = padding + 40
         self.buttons = [
             Button((x, y, btn_w, btn_h), "Reset game", self._on_reset, font=self.font),
-            Button((x, y + btn_h + 10, btn_w, btn_h), "Undo move", self._on_undo, font=self.font)
+            Button((x, y + btn_h + 10, btn_w, btn_h), "Undo move", self._on_undo, font=self.font),
+            Button((x, y + (btn_h + 10) * 2, btn_w, btn_h), "Flip board", self._on_flip, font=self.font),
         ]
 
     def _on_reset(self):
@@ -30,6 +31,12 @@ class Menu:
     def _on_undo(self):
         try:
             self.game_manager.undo_move()
+        except Exception:
+            pass
+
+    def _on_flip(self):
+        try:
+            self.game_manager.toggle_flip()
         except Exception:
             pass
 

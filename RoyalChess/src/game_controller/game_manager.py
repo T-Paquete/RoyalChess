@@ -1,8 +1,18 @@
 from game.move import SwapMove, CombinedMove
 
 class GameManager:
-    def __init__(self, board):
+    def __init__(self, board, *args, **kwargs):
         self.board = board
+        # track whether board is flipped for rendering/input
+        self.flipped = False
+
+    def toggle_flip(self):
+        """Toggle board orientation."""
+        self.flipped = not self.flipped
+
+    def set_flip(self, value: bool):
+        """Set board orientation explicitly."""
+        self.flipped = bool(value)
 
     def make_move(self, piece, target_row, target_col):
         """
