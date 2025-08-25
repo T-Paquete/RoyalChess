@@ -95,36 +95,57 @@ class Board:
 
 
     def move_piece(self, start_row, start_col, end_row, end_col):
-        """
-        Moves a piece from the starting position to the ending position on the board.
-        Updates the board grid, clears the starting position, updates the piece's coordinates,
-        and records the move in the move history, including any captured piece.
-        Args:
-            start_row (int): The row index of the piece's starting position.
-            start_col (int): The column index of the piece's starting position.
-            end_row (int): The row index of the piece's destination position.
-            end_col (int): The column index of the piece's destination position.
-        Returns:
-            None
-        """
-
         piece = self.grid[start_row][start_col]
-        captured = self.grid[end_row][end_col]
-        self.grid[end_row][end_col] = piece
-        self.grid[start_row][start_col] = None # Clear the starting position
-        piece.row, piece.col = end_row, end_col
-        if not piece:
+        if piece is None:
             return
-        
-        # Create a dictionary to record the move
+
+        # Normal captured piece at destination (may be None)
+        captured_piece = self.grid[end_row][end_col]
+
+        # Detect en-passant: diagonal move into an empty square by pawn or royal_guard
+        is_en_passant = False
+        en_passant_captured_position = None
+
+        if captured_piece is None and start_col != end_col and piece.name in ("pawn", "royal_guard"):
+            # Candidate captured piece is on same row as mover and in the column we move into
+            candidate_row = start_row
+            candidate_col = end_col
+            candidate_piece = self.grid[candidate_row][candidate_col]
+
+            # Validate candidate and that it was the last move with a two-square advance
+            if candidate_piece is not None and candidate_piece.color != piece.color and candidate_piece.name in ("pawn", "royal_guard"):
+                last_index = self.move_history.current_index
+                if last_index >= 0:
+                    last_move = self.move_history.moves[last_index]
+                    if last_move.get('piece') is candidate_piece:
+                        last_start_row, _ = last_move['start_pos']
+                        last_end_row, _ = last_move['end_pos']
+                        if abs(last_start_row - last_end_row) == 2:
+                            # Valid en-passant
+                            is_en_passant = True
+                            en_passant_captured_position = (candidate_row, candidate_col)
+                            captured_piece = candidate_piece
+
+        # Move the piece
+        self.grid[end_row][end_col] = piece
+        self.grid[start_row][start_col] = None
+        piece.row, piece.col = end_row, end_col
+
+        # If en-passant, remove the captured pawn from its square
+        if is_en_passant and en_passant_captured_position is not None:
+            cap_row, cap_col = en_passant_captured_position
+            self.grid[cap_row][cap_col] = None
+
+        # Record move (include en-passant metadata)
         move_record = {
             'piece': piece,
             'start_pos': (start_row, start_col),
             'end_pos': (end_row, end_col),
-            'captured': captured
+            'captured': captured_piece,
+            'en_passant': is_en_passant,
+            'en_passant_captured_pos': en_passant_captured_position
         }
-        
-        # Log the move in MoveHistory
+
         self.move_history.add_move(move_record)
 
 

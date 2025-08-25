@@ -292,7 +292,7 @@ class NonCapturingHatMove(Move):
                     # Allow moving to an empty square
                     if target is None:
                         moves.append((new_row, new_col))
-                    # Allow movintg onto the other hat
+                    # Allow moving onto the other hat
                     elif (
                         (piece.name == "white_hat" and target.name == "black_hat") or
                         (piece.name == "black_hat" and target.name == "white_hat")
@@ -304,5 +304,51 @@ class NonCapturingHatMove(Move):
                 else:
                     break # Out of bounds
         return moves
-    
-    
+
+class EnPassantMove(Move):
+    def get_possible_moves(self, piece, board):
+        """
+        Returns en-passant capture square if the last move was an opponent pawn/royal_guard
+        that moved two squares and ended adjacent to this piece.
+        """
+        possible_moves = []
+
+        # Need a previous move
+        last_index = board.move_history.current_index
+        if last_index < 0:
+            return possible_moves
+
+        last_move = board.move_history.moves[last_index]
+        last_moved_piece = last_move.get('piece')
+        if last_moved_piece is None:
+            return possible_moves
+
+        # Only pawns / royal guards can be captured en passant
+        if last_moved_piece.name not in ("pawn", "royal_guard"):
+            return possible_moves
+
+        # Last move must have been a two-square advance
+        last_start_row, last_start_col = last_move['start_pos']
+        last_end_row, last_end_col = last_move['end_pos']
+        if abs(last_start_row - last_end_row) != 2:
+            return possible_moves
+
+        # The moved piece must be on the same row as this piece and adjacent column
+        if last_end_row != piece.row:
+            return possible_moves
+        if abs(last_end_col - piece.col) != 1:
+            return possible_moves
+
+        # Landing square for en-passant is one forward from the capturer
+        forward = -1 if piece.color == "white" else 1
+        landing_row = piece.row + forward
+        landing_col = last_end_col
+
+        # Must be on board and landing square must be empty
+        if 0 <= landing_row < board.rows and 0 <= landing_col < board.cols:
+            if board.grid[landing_row][landing_col] is None:
+                possible_moves.append((landing_row, landing_col))
+
+        return possible_moves
+
+

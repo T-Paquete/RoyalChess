@@ -41,11 +41,11 @@ class Piece:
 # ================== Starting Pieces ==================
 
 class Pawn(Piece):
-    def __init__(self, color, row, col, rank=None, moves=[PawnMove()]):
+    def __init__(self, color, row, col, rank=None, moves=[PawnMove(), EnPassantMove()]):
         super().__init__("pawn", color, row, col, rank=rank, moves=moves)
 
 class RoyalGuard(Piece):
-    def __init__(self, color, row, col, rank=None, moves=[RoyalGuardMove()]):
+    def __init__(self, color, row, col, rank=None, moves=[RoyalGuardMove(), EnPassantMove()]):
         super().__init__("royal_guard", color, row, col, rank=rank, moves=moves)
 
 class Knight(Piece):
