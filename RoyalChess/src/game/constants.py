@@ -1,11 +1,12 @@
-
 # Board dimensions
 COLS = 12
 ROWS = 10 # 8 rows for the chess game + 2 extra rows
-SQSIZE = 800 // ROWS
+SQSIZE = 64
 
 # Screen dimensions
-WIDTH = SQSIZE * COLS
+MENU_WIDTH = 180
+BOARD_PIXEL_WIDTH = COLS * SQSIZE
+WIDTH = BOARD_PIXEL_WIDTH + MENU_WIDTH
 HEIGHT = SQSIZE * ROWS
 
 # Board colors

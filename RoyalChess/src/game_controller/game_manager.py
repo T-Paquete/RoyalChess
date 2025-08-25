@@ -3,7 +3,7 @@ from game.move import SwapMove, CombinedMove
 class GameManager:
     def __init__(self, board):
         self.board = board
-        
+
     def make_move(self, piece, target_row, target_col):
         """
         Executes a move for the given piece to the specified target position on the board.
@@ -179,3 +179,19 @@ class GameManager:
     
     def combine_hats(self, piece, target_piece):
         piece.use_ability("combine_hat", self.board, target_piece)
+
+    def reset_game(self):
+        """Reset the board and any manager state (turn, clocks, etc)."""
+        # If you track turn/players/clock, reset them here as well.
+        self.board.reset()
+
+    def undo_move(self):
+        """
+        Ask the board to undo the last move. Update any manager state (turn switching).
+        """
+        undone = self.board.undo_last_move()
+        if undone:
+            # If you track turn, flip it back here (example):
+            # self.current_player = 1 - self.current_player
+            pass
+        return undone

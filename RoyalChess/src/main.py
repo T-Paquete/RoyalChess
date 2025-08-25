@@ -2,6 +2,7 @@ import pygame
 from game.board import Board
 from ui.display import Display
 from ui.dragger import Dragger
+from ui.menu import Menu
 from game.constants import WIDTH, HEIGHT, SQSIZE
 from game_controller.game_manager import GameManager 
 
@@ -17,6 +18,7 @@ def main():
     display = Display()
     dragger = Dragger()
     game_manager = GameManager(board)
+    menu = Menu(game_manager)               # <-- new
     selected_piece = None
     
     running = True
@@ -25,10 +27,19 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
+            # Let menu consume clicks first
+            if menu.handle_event(event):
+                continue
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 row, col = mouse_y // SQSIZE, mouse_x // SQSIZE
-                piece = board.grid[row][col]
+                # avoid indexing grid when clicking in menu area or outside board
+                if 0 <= row < board.rows and 0 <= col < board.cols:
+                    piece = board.grid[row][col]
+                else:
+                    piece = None
+
                 if piece:
                     selected_piece = piece
                     dragger.start_drag(piece, row, col)
@@ -44,9 +55,11 @@ def main():
                 if dragger.is_dragging():
                     mouse_x, mouse_y = pygame.mouse.get_pos()
                     target_row, target_col = mouse_y // SQSIZE, mouse_x // SQSIZE
-                    piece = dragger.selected_piece
-                    if piece:
-                        game_manager.make_move(piece, target_row, target_col)
+                    # ensure target is on the board (ignore drops on the menu)
+                    if 0 <= target_row < board.rows and 0 <= target_col < board.cols:
+                        piece = dragger.selected_piece
+                        if piece:
+                            game_manager.make_move(piece, target_row, target_col)
                     dragger.stop_drag()
                     selected_piece = None  # Clear selection after drop
 
@@ -58,6 +71,9 @@ def main():
         display.draw_pieces(screen, board, exclude_piece=dragger.selected_piece if dragger.is_dragging() else None)
         if dragger.is_dragging():
             display.draw_dragged_piece(screen, dragger)
+
+        menu.draw(screen)   # <-- draw menu on top/right
+
         pygame.display.flip()
 
     pygame.quit()

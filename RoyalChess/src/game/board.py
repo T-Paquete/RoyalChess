@@ -148,6 +148,52 @@ class Board:
 
         self.move_history.add_move(move_record)
 
+    def reset(self):
+        """Reset board to initial state and clear move history."""
+        self.grid = [[None for _ in range(COLS)] for _ in range(ROWS)]
+        self.move_history = MoveHistory()
+        self.initial_piece_setup()
+
+    def undo_last_move(self):
+        """
+        Undo the last move recorded in move_history and restore board state.
+        Returns True if a move was undone, False otherwise.
+        """
+        last_move = self.move_history.undo()
+        if not last_move:
+            return False
+
+        moved_piece = last_move.get('piece')
+        start_row, start_col = last_move.get('start_pos')
+        end_row, end_col = last_move.get('end_pos')
+        captured_piece = last_move.get('captured')
+        was_en_passant = last_move.get('en_passant', False)
+        en_passant_captured_pos = last_move.get('en_passant_captured_pos')
+
+        # Move the piece back to its start square
+        # Clear the end square (was occupied by moved_piece)
+        # If other piece is now on start square (unlikely), overwrite
+        self.grid[start_row][start_col] = moved_piece
+        if 0 <= end_row < self.rows and 0 <= end_col < self.cols:
+            self.grid[end_row][end_col] = None
+        if moved_piece:
+            moved_piece.row, moved_piece.col = start_row, start_col
+
+        # Restore captured piece
+        if was_en_passant and en_passant_captured_pos:
+            cap_row, cap_col = en_passant_captured_pos
+            self.grid[cap_row][cap_col] = captured_piece
+            if captured_piece:
+                captured_piece.row, captured_piece.col = cap_row, cap_col
+        else:
+            if captured_piece:
+                # captured piece originally was on the end square
+                self.grid[end_row][end_col] = captured_piece
+                if captured_piece:
+                    captured_piece.row, captured_piece.col = end_row, end_col
+
+        return True
+
 
 
 
